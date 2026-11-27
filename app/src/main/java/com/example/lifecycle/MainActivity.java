@@ -1,24 +1,109 @@
 package com.example.lifecycle;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
+
+    TextView countText, txtStatus;
+    Button addButton, resetButton;
+
+    int count = 0;
+
+    private static final String TAG = "LifecycleCounter";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        WindowCompat.enableEdgeToEdge(getWindow());
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+
+        countText = findViewById(R.id.countText);
+        txtStatus = findViewById(R.id.txtStatus);
+        addButton = findViewById(R.id.addButton);
+        resetButton = findViewById(R.id.resetButton);
+
+        // Restore the counter after recreation
+        if (savedInstanceState != null) {
+            count = savedInstanceState.getInt("count");
+        }
+
+        countText.setText(String.valueOf(count));
+
+        // Add button event handler
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                count++;
+                countText.setText(String.valueOf(count));
+            }
         });
+
+        // Reset button event handler
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                count = 0;
+                countText.setText(String.valueOf(count));
+            }
+        });
+
+        showStatus("onCreate()");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        showStatus("onStart()");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showStatus("onResume()");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        showStatus("onPause()");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        showStatus("onStop()");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        showStatus("onRestart()");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        showStatus("onDestroy()");
+    }
+
+    // Save the counter before Activity recreation
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt("count", count);
+
+        Log.d(TAG, "onSaveInstanceState(): " + count);
+    }
+
+    // Display lifecycle status and Logcat messages
+    private void showStatus(String status) {
+        txtStatus.setText("Status: " + status);
+        Log.d(TAG, status);
     }
 }
